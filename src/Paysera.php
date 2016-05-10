@@ -16,11 +16,11 @@ class Paysera {
             Order::findOrFail($data['order_id'])->setStatus(Config::get('paysera.statuses.2'));
 
             $payment_data = [
-                'projectid'     => Config::get('paysera.projectid'),
-                'sign_password' => Config::get('paysera.sign_password'),
-                'currency'      => Config::get('paysera.currency'),
-                'country'       => Config::get('paysera.country'),
-                'test'          => Config::get('paysera.test'),
+                'projectid'     => config('paysera.projectid'),
+                'sign_password' => config('paysera.sign_password'),
+                'currency'      => config('paysera.currency'),
+                'country'       => config('paysera.country'),
+                'test'          => config('paysera.test'),
 
                 'orderid'       => $data['order_id'],
                 'amount'        => intval($data['amount']*100),
