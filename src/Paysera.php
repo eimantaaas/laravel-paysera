@@ -11,7 +11,7 @@ class Paysera {
         return [];
     }
 
-    public static function makePayment($data){
+    public static function makePayment($order_id, $amount, $options = []){
         try {
             Order::findOrFail($data['order_id'])->setStatus(Config::get('paysera.statuses.2'));
 
@@ -29,7 +29,7 @@ class Paysera {
                 'callbackurl'   => route('artme.paysera.callback', [])
             ];
 
-            $request = WebToPay::redirectToPayment($payment_data, true);
+            $request = WebToPay::redirectToPayment(array_merge($payment_data, $options), true);
         } catch (WebToPayException $e) {
             // handle exception
         }
