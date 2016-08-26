@@ -24,8 +24,8 @@ class Paysera {
 
                 'orderid'       => $order_id,
                 'amount'        => intval($amount*100),
-                'accepturl'     => route('front.order.show', $order_id]),
-                'cancelurl'     => route('front.order.show', $order_id]),
+                'accepturl'     => route('front.order.show', $order_id),
+                'cancelurl'     => route('front.order.show', $order_id),
                 'callbackurl'   => route('artme.paysera.callback', [])
             ];
 
