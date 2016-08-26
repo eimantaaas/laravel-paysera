@@ -13,7 +13,7 @@ class Paysera {
 
     public static function makePayment($order_id, $amount, $options = []){
         try {
-            Order::findOrFail($data['order_id'])->setStatus(Config::get('paysera.statuses.2'));
+            Order::findOrFail($order_id)->setStatus(Config::get('paysera.statuses.2'));
 
             $payment_data = [
                 'projectid'     => config('paysera.projectid'),
@@ -22,10 +22,10 @@ class Paysera {
                 'country'       => config('paysera.country'),
                 'test'          => config('paysera.test'),
 
-                'orderid'       => $data['order_id'],
-                'amount'        => intval($data['amount']*100),
-                'accepturl'     => route('front.order.show', [$data['order_id']]),
-                'cancelurl'     => route('front.order.show', [$data['order_id']]),
+                'orderid'       => $order_id,
+                'amount'        => intval($amount*100),
+                'accepturl'     => route('front.order.show', $order_id]),
+                'cancelurl'     => route('front.order.show', $order_id]),
                 'callbackurl'   => route('artme.paysera.callback', [])
             ];
 
