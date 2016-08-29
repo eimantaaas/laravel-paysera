@@ -13,6 +13,8 @@ return [
         '2' => 'payment_pending'
     ],
 
+    'payment_groups' => ['e-banking', 'e-money', 'other'],
+
     // Route names for callbacks
     'accepturl'     => '',
     'cancelurl'     => '',
