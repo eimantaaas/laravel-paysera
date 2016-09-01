@@ -12,17 +12,12 @@ use Illuminate\Support\Facades\Config;
 class PayseraController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Take care Paysera callback request
      *
-     * @return \Illuminate\Http\Response
+     * @return string
      */
     public function callback(Request $request)
     {
-        parse_str(base64_decode(strtr($request->get('data'), array('-' => '+', '_' => '/'))), $params);
-
-        $order = Order::findOrFail($params['orderid']);
-        $order->setStatus(Config::get('paysera.statuses.'.$params['status']));
-
-        return 'OK';
+        return Paysera::updateOrderStatus($request)?'OK':'ERROR';
     }
 }
