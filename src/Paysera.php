@@ -72,11 +72,13 @@ class Paysera {
                 'test'          => config('paysera.test'),
                 'version'       => '1.6',
 
-                'callbackurl'   => route('artme.paysera.callback'),
-
                 'orderid'       => $order_id,
                 'amount'        => intval($amount*100)
             ];
+
+            if(!is_null(config('paysera.callback_uri'))){
+                $payment_data['callbackurl'] = route('artme.paysera.callback');
+            }
 
             $payment_data = array_merge($payment_data, $options);
             
