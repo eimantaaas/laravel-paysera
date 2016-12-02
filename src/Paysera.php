@@ -79,6 +79,8 @@ class Paysera {
             ];
 
             $payment_data = array_merge($payment_data, $options);
+
+            dd($payment_data);
             $payment_data['cancelurl'] = self::getCancelUrl($payment_data['cancelurl'], $order_id);
 
 
@@ -109,9 +111,13 @@ class Paysera {
     }
 
 
-    public static function updateOrderStatus(Request $request){
+    public static function updateOrderStatus(Request $request, $order_namespace = null){
         $request_data = self::verifyPayment($request);
-        $namespace = config('paysera.order_model_namespace');
+        if(!is_null($order_namespace)){
+            $namespace = $order_namespace;
+        } else {
+            $namespace = config('paysera.order_model_namespace');
+        }
 
         if(!is_null($namespace)){
             $order = $namespace::findOrFail($request_data['orderid']);
