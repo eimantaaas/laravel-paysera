@@ -79,10 +79,8 @@ class Paysera {
             ];
 
             $payment_data = array_merge($payment_data, $options);
-
-            dd($payment_data);
+            
             $payment_data['cancelurl'] = self::getCancelUrl($payment_data['cancelurl'], $order_id);
-
 
             $request = WebToPay::redirectToPayment($payment_data, true);
         } catch (WebToPayException $e) {
