@@ -42,8 +42,6 @@ class PayseraServiceProvider extends ServiceProvider
             } else {
                 throw new \Exception('[laravel-paysera] Order model set in paysera.php config doesn\'t exist');
             }
-        } else {
-            throw new \Exception('[laravel-paysera] Set order model namespace in paysera.php config');
         }
     }
 }
