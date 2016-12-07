@@ -9,9 +9,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "Artme\\Paysera\\": "src/"
+            "Artme\\Paysera\\": "src"
         }
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "hashids/hashids": "^2.0"
+    }
 }

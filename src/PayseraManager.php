@@ -2,15 +2,26 @@
 
 namespace Artme\Paysera;
 
+use Hashids\Hashids;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\URL;
 use WebToPay;
 
-class Paysera {
-    public static function getRequiredFields(){
-        return [];
+class PayseraManager {
+
+    private static $instance;
+
+    /**
+     * Create instant of self or return already created instant
+     *
+     * @param array|null $config
+     * @return SettingsManager $settings_manager
+     */
+    public static function getInstance($config = null)
+    {
+        return static::$instance ?: (static::$instance = new self($config));
     }
 
     /**
@@ -23,7 +34,7 @@ class Paysera {
      */
     public static function getPaymentMethods($country = null, $payment_groups_names = null){
         $payment_methods_info = WebToPay::getPaymentMethodList(intval(config('paysera.projectid')), config('paysera.currency'));
-        $country_code = $country !== null?$country:strtolower(config('paysera.country'));
+        $country_code = !is_null($country)?$country:strtolower(config('paysera.country'));
         $payment_methods_info->setDefaultLanguage(App::getLocale());
 
         $result = [];
@@ -81,10 +92,8 @@ class Paysera {
             }
 
             $payment_data = array_merge($payment_data, $options);
-            
-            $payment_data['cancelurl'] = self::getCancelUrl($payment_data['cancelurl'], $order_id);
 
-            $request = WebToPay::redirectToPayment($payment_data, true);
+            WebToPay::redirectToPayment($payment_data, true);
         } catch (WebToPayException $e) {
             echo get_class($e) . ': ' . $e->getMessage();
         }
@@ -96,7 +105,7 @@ class Paysera {
      * @param Request $request
      * @return array
      */
-    public static function verifyPayment(Request $request){
+    public static function parsePayment(Request $request){
         try {
             $response = WebToPay::validateAndParseData(
                 $request->all(),
@@ -105,55 +114,21 @@ class Paysera {
             );
 
             return $response;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo get_class($e) . ': ' . $e->getMessage();
         }
     }
 
+    public function encode($value){
+        $hashids = new Hashids(config('paysera.projectid'), 10);
 
-    public static function updateOrderStatus(Request $request, $order_namespace = null){
-        $request_data = self::verifyPayment($request);
-        if(!is_null($order_namespace)){
-            $namespace = $order_namespace;
-        } else {
-            $namespace = config('paysera.order_model_namespace');
-        }
-
-        if(!is_null($namespace)){
-            $order = $namespace::findOrFail($request_data['orderid']);
-            if(method_exists($order, 'setStatus')){
-                $order->setStatus($request_data['status']);
-                return true;
-            }
-        }
-
-        return false;
+        return $hashids->encode($value);
     }
 
-    public static function getCancelUrl($url, $order_id){
-        $parsed_url = parse_url($url);
-        if(isset($parsed_url['query'])){
-            $query = parse_str($parsed_url['query']);
-        } else {
-            $query = [];
-        }
-        $query['order_id'] = Crypt::encrypt($order_id);
-        $parsed_url['query'] = http_build_query($query);
+    public function decode($value){
+        $hashids = new Hashids(config('paysera.projectid'), 10);
+        $decoded = $hashids->decode($value);
 
-        return self::unparseUrl($parsed_url);
-    }
-
-    private static function unparseUrl($parsed_url) {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
-        $pass     = ($user || $pass) ? "$pass@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-
-        return "$scheme$user$pass$host$port$path$query$fragment";
+        return isset($decoded[0])?$decoded[0]:null;
     }
 }

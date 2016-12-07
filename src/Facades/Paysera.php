@@ -1,10 +1,10 @@
-<?
+<?php
 
-namespace Artme\Paysera;
+namespace Artme\Paysera\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class PayseraFacade extends Facade {
+class Paysera extends Facade {
 
     /**
      * Get the registered name of the component.
